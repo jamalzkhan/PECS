@@ -1,6 +1,7 @@
 import  pymongo, datetime, json, bson, hashlib, psycopg2
 from dateutil import parser
 import logging
+import math, random
 
 class Postgres:
   
@@ -22,10 +23,20 @@ class Postgres:
     self.cur.execute(query)
     self.connection.commit()
     
+  def query_database(self):
+    """Gets a random number between 0 and 100 and selects tweets from the database"""
+    n = math.ceil(random.random() * 100)
+    query = "select * from " + "tweets " + "limit " + str(int(n))
+    self.cur.execute(query)
+    s = self.cur.fetchone()
+    
+    print query
+    print s
+    
   def add_tweets(self, tweet):
     tweet_data = json.dumps(tweet)
     tweet_data = tweet_data.replace("'","")
-    query = "insert into tweets(json) values (" +"'" +tweet_data+"')"
+    query = "insert into tweets(json) values (" +"'" + tweet_data + "')"
     self.cur.execute(query)
     self.connection.commit()
   
