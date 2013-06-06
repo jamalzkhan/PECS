@@ -1,12 +1,18 @@
-import  pymongo, datetime, json, bson, hashlib
+import  pymongo, datetime, json, bson, hashlib, ConfigParser
 from dateutil import parser
 import logging
 
 class MongoDB:
   
-  def __init__(self, db, collection, logger):
+  def __init__(self, logger):
     self.logger = logging
     self.logger.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
+    
+    config = ConfigParser.RawConfigParser()
+    config.read('config.conf')
+    db = config.get('database', 'dbname')
+    collection = config.get('database', 'testtable')
+    
     self.setup(db, collection)
 
   def setup(self, database, collection):
@@ -36,7 +42,7 @@ class MongoDB:
     return avg_sum / count
 
 def initialize():
-  return MongoDB("test", 'tweets', logging)
+  return MongoDB(logging)
 
 if __name__ == "__main__":  
   d = MongoDB()
