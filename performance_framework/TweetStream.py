@@ -7,7 +7,6 @@ class TweetStream(threading.Thread):
   
   def __init__(self, logger, inserts, selects, database, config):
     
-    
     self.twitter_username = config.get('twitter','username')
     self.twitter_password = config.get('twitter','password')
     self.selects = selects
@@ -23,7 +22,7 @@ class TweetStream(threading.Thread):
   
   def run(self, time_limit):
     self.logger.log("Starting to stream tweets from Twitter")
-    self.file = f = open(self.get_file_name(), 'w')
+    self.file = open(self.get_file_name(), 'w')
     self.stream  = tweetstream.SampleStream(self.twitter_username, self.twitter_password)
     
     max_queries = self.inserts + self.selects
@@ -43,6 +42,7 @@ class TweetStream(threading.Thread):
       if count == max_queries:
         break
     self.logger.log("Database queries complete")
+    self.logger.log_to_file(self.file, str(self.response_data))
     self.logger.log("Average response time: "+str(sum(self.response_data)/len(self.response_data)))
         
   def put_tweet_in_database(self):
