@@ -44,7 +44,7 @@ class MongoDB:
       avg_sum += log[field]  
     return avg_sum / count
 
-def initialize():
+def initialize(config):
   return MongoDB(logging)
 
 if __name__ == "__main__":  

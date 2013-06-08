@@ -53,9 +53,7 @@ class Postgres:
     self.logger.info('Database connection initialized.')
     self.logger.info('Connected to the database.')
     
-def initialize():
-  config = ConfigParser.RawConfigParser()
-  config.read('config.conf')
+def initialize(config):
   db = config.get('database', 'dbname')
   table = config.get('database', 'testtable')
   user = config.get('postgres', 'user')

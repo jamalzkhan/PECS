@@ -20,12 +20,12 @@ def setup_parser(parser):
   parser.add_option("-p", "--port", help="please give the port of the webserver, default 80")
   return parser
 
-def get_database(database_string):
+def get_database(database_string, config):
   database = None
   if database_string=="mongo":
-    database = MongoDB.initialize()
+    database = MongoDB.initialize(config)
   elif database_string=="postgres":
-    database = Postgres.initialize()
+    database = Postgres.initialize(config)
   return database
   
 def check_int_field(field):
@@ -45,20 +45,24 @@ def main():
   url = options.url
   port = options.port
   
-  database = get_database(database_string)
+  # Configuration, which is derived from a specificc file
+  config = ConfigParser.RawConfigParser()
+  config.read('config.conf')
+  
+  database = get_database(database_string, config)
   if database == None:
     print "Something went wrong"
     
   inserts = check_int_field(inserts)
   selects = check_int_field(selects)
   
-  config = ConfigParser.RawConfigParser()
-  config.read('config.conf')
-  
   logger = Logger.initialize('performance')
   streamer = TweetStream.get_instance(logger, inserts, selects, database, config)
+  
   logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
   str(selects) + " reads.")
+  
+  # Running the streamer
   streamer.run(None)
 
 if __name__ == "__main__":

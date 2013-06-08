@@ -55,11 +55,11 @@ class TweetStream(threading.Thread):
   def query_database(self):
     self.database.query_database()
   
-def get_instance(logger, inserts, selects, database):
-  return TweetStream(logger, inserts, selects, database)
+def get_instance(logger, inserts, selects, database, config):
+  return TweetStream(logger, inserts, selects, database, config)
 
 if __name__ == "__main__":
   m = MongoDB.initialize()
-  #p = Postgres.initialize()
+  p = Postgres.initialize()
   t = TweetStream(logging, 100, 100 , m)
   t.run(None)
