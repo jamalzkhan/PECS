@@ -1,4 +1,4 @@
-import TweetStream, MongoDB, Postgres, Logger
+import TweetStream, MongoDB, Postgres, Logger, ConfigParser
 from optparse import OptionParser
 
 class Performance:
@@ -18,7 +18,6 @@ def setup_parser(parser):
   # Parser for the HTTP server options
   parser.add_option("-u", "--url", help="path of the webserver")
   parser.add_option("-p", "--port", help="please give the port of the webserver, default 80")
-  
   return parser
 
 def get_database(database_string):
@@ -53,8 +52,11 @@ def main():
   inserts = check_int_field(inserts)
   selects = check_int_field(selects)
   
+  config = ConfigParser.RawConfigParser()
+  config.read('config.conf')
+  
   logger = Logger.initialize('performance')
-  streamer = TweetStream.get_instance(logger, inserts, selects, database)
+  streamer = TweetStream.get_instance(logger, inserts, selects, database, config)
   logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
   str(selects) + " reads.")
   streamer.run(None)

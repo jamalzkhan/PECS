@@ -5,10 +5,8 @@ import Postgres
 
 class TweetStream(threading.Thread):
   
-  def __init__(self, logger, inserts, selects, database):
+  def __init__(self, logger, inserts, selects, database, config):
     
-    config = ConfigParser.RawConfigParser()
-    config.read('config.conf')
     
     self.twitter_username = config.get('twitter','username')
     self.twitter_password = config.get('twitter','password')
@@ -19,9 +17,9 @@ class TweetStream(threading.Thread):
     self.response_data = []
     self.logger = logger
   
-  
   def get_file_name(self):
-    return   './logs/'+str(datetime.datetime.now())+'-'+self.database.to_string()+'-read-'+str(self.selects)+'-write-'+str(self.inserts)+'.log'
+    return   './logs/'+str(datetime.datetime.now())+'-'+self.database.to_string()\
+    +'-read-'+str(self.selects)+'-write-'+str(self.inserts)+'.log'
   
   def run(self, time_limit):
     self.logger.log("Starting to stream tweets from Twitter")
