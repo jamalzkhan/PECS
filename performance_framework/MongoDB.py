@@ -22,6 +22,9 @@ class MongoDB:
     self.collection = self.db[collection]
     self.logger.info('Connected to the database.')
     
+  def to_string(self):
+    return "mongo"
+    
   def add_tweets(self, tweet):
     data = tweet
     self.db["tweets"].insert(data)

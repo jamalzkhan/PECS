@@ -1,4 +1,4 @@
-import TweetStream, MongoDB, Postgres, logging
+import TweetStream, MongoDB, Postgres, Logger
 from optparse import OptionParser
 
 class Performance:
@@ -52,8 +52,11 @@ def main():
     
   inserts = check_int_field(inserts)
   selects = check_int_field(selects)
-
-  streamer = TweetStream.get_instance(logging, inserts, selects, database)
+  
+  logger = Logger.initialize('performance')
+  streamer = TweetStream.get_instance(logger, inserts, selects, database)
+  logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
+  str(selects) + " reads.")
   streamer.run(None)
 
 if __name__ == "__main__":

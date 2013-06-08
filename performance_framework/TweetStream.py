@@ -5,7 +5,7 @@ import Postgres
 
 class TweetStream(threading.Thread):
   
-  def __init__(self, log, inserts, selects, database):
+  def __init__(self, logger, inserts, selects, database):
     
     config = ConfigParser.RawConfigParser()
     config.read('config.conf')
@@ -17,9 +17,15 @@ class TweetStream(threading.Thread):
     self.probability_tracker = 0
     self.database = database
     self.response_data = []
+    self.logger = logger
+  
+  
+  def get_file_name(self):
+    return   './logs/'+str(datetime.datetime.now())+'-'+self.database.to_string()+'-read-'+str(self.selects)+'-write-'+str(self.inserts)+'.log'
   
   def run(self, time_limit):
-    self.file = f = open('./logs/'+str(datetime.datetime.now())+'.log', 'w')
+    self.logger.log("Starting to stream tweets from Twitter")
+    self.file = f = open(self.get_file_name(), 'w')
     self.stream  = tweetstream.SampleStream(self.twitter_username, self.twitter_password)
     
     max_queries = self.inserts + self.selects
@@ -34,11 +40,12 @@ class TweetStream(threading.Thread):
         self.query_database()
       after =  datetime.datetime.now()
       delta = after - before
-      self.file.write(str(delta.total_seconds()) + ", ")
+      #logger.(str(delta.total_seconds()) + ", ")
       self.response_data.append(delta.total_seconds())
       if count == max_queries:
         break
-    print sum(self.response_data)/len(self.response_data)
+    self.logger.log("Database queries complete")
+    self.logger.log("Average response time: "+str(sum(self.response_data)/len(self.response_data)))
         
   def put_tweet_in_database(self):
     r = random.random()
@@ -50,8 +57,8 @@ class TweetStream(threading.Thread):
   def query_database(self):
     self.database.query_database()
   
-def get_instance(logging, inserts, selects, database):
-  return TweetStream(logging, inserts, selects, database)
+def get_instance(logger, inserts, selects, database):
+  return TweetStream(logger, inserts, selects, database)
 
 if __name__ == "__main__":
   m = MongoDB.initialize()

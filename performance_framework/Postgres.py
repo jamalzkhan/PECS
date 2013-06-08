@@ -18,6 +18,9 @@ class Postgres:
     self.connection = psycopg2.connect("dbname="+self.db+" user="+self.user+" password="+self.password)
     self.cur = self.connection.cursor()
     
+  def to_string(self):
+    return "postgresql"
+    
   def disconnect(self):
     self.cur.close()
     self.connection.close()
