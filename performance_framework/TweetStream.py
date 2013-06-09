@@ -27,21 +27,26 @@ class TweetStream(threading.Thread):
     
     max_queries = self.inserts + self.selects
     count = 0
+    reads = 0
+    writes = 0
     for tweet in self.stream:
-      count += 1
       before = datetime.datetime.now()
       #if self.put_tweet_in_database():
       if count < self.inserts:
+        writes += 1
         self.add_to_database(tweet)  
       else:
+        reads += 1
         self.query_database()
       after =  datetime.datetime.now()
       delta = after - before
+      count += 1
       #logger.(str(delta.total_seconds()) + ", ")
       self.response_data.append(delta.total_seconds())
       if count == max_queries:
         break
     self.logger.log("Database queries complete")
+    self.logger.log("Conducted " +str(reads) + " reads and " + str(writes) +" writes.")
     self.logger.log_to_file(self.file, str(self.response_data))
     self.logger.log("Average response time: "+str(sum(self.response_data)/len(self.response_data)))
         

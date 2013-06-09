@@ -42,11 +42,15 @@ class ServerConnection:
     self.file = open(self.get_file_name(), 'w')
     self.connect()
     response_data = []
+    gets = 0
+    post = 0
     for i in range(0, self.gets+self.puts):
       before = datetime.datetime.now()
       if i < self.gets:
+        gets += 1
         res = self.get_request(self.get_url).read()
       else:
+        post += 1
         params = urllib.urlencode(self.post_data)
         res = self.post_request(self.post_url, self.post_data).read()
       #print res.status, res.reason
@@ -54,6 +58,7 @@ class ServerConnection:
       delta = after - before
       response_data.append(delta.total_seconds())
     self.logger.log_to_file(self.file, str(response_data))
+    self.logger.log("Conducted " + str(gets) + " get requests and " + str(post) + " post requests.")
 
 def initialize(url, port, gets, posts, logger, config):
   s = ServerConnection(url, port, gets, posts, logger, config)
