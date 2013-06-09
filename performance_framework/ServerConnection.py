@@ -1,4 +1,4 @@
-import httplib, datetime
+import httplib, datetime, urllib
 
 class ServerConnection:
   
@@ -11,6 +11,14 @@ class ServerConnection:
     self.logger = logger
     self.get_url = config.get('http','get')
     self.post_url = config.get('http','post')
+    self.post_data = self.get_post_data(config)
+    
+  def get_post_data(self, config):
+    items = config.items('post')
+    post_data = {}
+    for (option, value) in items:
+      post_data[option] = value
+    return post_data
     
   def connect(self):
     self.http_connection.connect()
@@ -18,8 +26,12 @@ class ServerConnection:
   def disconnect(self):
     self.http_connection.close()
   
-  def request(self, method, request_url):
-    self.http_connection.request(method, request_url)
+  def get_request(self, request_url):
+    self.http_connection.request("GET", '/'+request_url)
+    return self.http_connection.getresponse()
+    
+  def post_request(self, request_url, data):
+    self.http_connection.request("POST", '/'+request_url, urllib.urlencode(data))
     return self.http_connection.getresponse()
   
   def get_file_name(self):
@@ -33,9 +45,10 @@ class ServerConnection:
     for i in range(0, self.gets+self.puts):
       before = datetime.datetime.now()
       if i < self.gets:
-        res = self.request("GET", self.get_url).read()
+        res = self.get_request(self.get_url).read()
       else:
-        res = self.request("POST", self.post_url).read()
+        params = urllib.urlencode(self.post_data)
+        res = self.post_request(self.post_url, self.post_data).read()
       #print res.status, res.reason
       after =  datetime.datetime.now()
       delta = after - before
@@ -52,7 +65,7 @@ if __name__ == "__main__":
   
   for i in range(0, s.gets):
     before = datetime.datetime.now()
-    res = s.request("GET", "/").read()
+    res = s.get_request("/").read()
     #print res.status, res.reason
     after =  datetime.datetime.now()
     delta = after - before
