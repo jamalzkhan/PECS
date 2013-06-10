@@ -1,5 +1,4 @@
 import  pymongo, datetime, json, bson, hashlib, ConfigParser
-from dateutil import parser
 import logging
 
 class MongoDB:
