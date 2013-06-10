@@ -1,5 +1,4 @@
 import  pymongo, datetime, json, bson, hashlib, psycopg2, ConfigParser
-from dateutil import parser
 import logging
 import math, random
 
