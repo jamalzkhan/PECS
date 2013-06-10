@@ -31,7 +31,8 @@ class ServerConnection:
     return self.http_connection.getresponse()
     
   def post_request(self, request_url, data):
-    self.http_connection.request("POST", '/'+request_url, urllib.urlencode(data))
+    headers = {"Content-type":"application/json", "Accept": "text/plain"}
+    self.http_connection.request("POST", '/'+request_url, urllib.urlencode(data), headers)
     return self.http_connection.getresponse()
   
   def get_file_name(self):
