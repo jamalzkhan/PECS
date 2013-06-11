@@ -24,12 +24,12 @@ def setup_parser(parser):
   parser.add_option("-n", type="int", dest="threads", help="number of concurrent connections")
   return parser
 
-def get_database(database_string, config):
+def get_database(database_string, config, logger):
   database = None
   if database_string=="mongo":
-    database = MongoDB.initialize(config)
+    database = MongoDB.initialize(config, logger)
   elif database_string=="postgres":
-    database = Postgres.initialize(config)
+    database = Postgres.initialize(config, logger)
   return database
   
 def check_int_field(field):
@@ -61,9 +61,10 @@ def main():
   config = ConfigParser.RawConfigParser()
   config.read('config.conf')
   
-  database = get_database(database_string, config)
-  
   logger = Logger.initialize('performance')
+  database = get_database(database_string, config, logger)
+  
+  
   streamer = None
   
   if options.database != None:

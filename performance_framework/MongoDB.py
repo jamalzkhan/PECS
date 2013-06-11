@@ -4,8 +4,7 @@ import logging
 class MongoDB:
   
   def __init__(self, logger):
-    self.logger = logging
-    self.logger.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
+    self.logger = logger
     
     config = ConfigParser.RawConfigParser()
     config.read('config.conf')
@@ -15,11 +14,11 @@ class MongoDB:
     self.setup(db, collection)
 
   def setup(self, database, collection):
-    self.logger.info('Database connection initialized.')
+    self.logger.log('Database connection initialized.')
     self.client = pymongo.MongoClient()
     self.db = self.client[database]
     self.collection = self.db[collection]
-    self.logger.info('Connected to the database.')
+    self.logger.log('Connected to the database.')
     
   def to_string(self):
     return "mongo"
@@ -43,8 +42,8 @@ class MongoDB:
       avg_sum += log[field]  
     return avg_sum / count
 
-def initialize(config):
-  return MongoDB(logging)
+def initialize(config, logger):
+  return MongoDB(logger)
 
 if __name__ == "__main__":  
   d = MongoDB()

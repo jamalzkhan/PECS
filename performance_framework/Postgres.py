@@ -1,11 +1,10 @@
 import  pymongo, datetime, json, bson, hashlib, psycopg2, ConfigParser
-import logging
 import math, random
 
 class Postgres:
   
   def __init__(self,user, password, db, table, logger):
-    self.logger = logging
+    self.logger = logger
     self.setup(db, table)
     self.db = db
     self.table = table
@@ -48,16 +47,15 @@ class Postgres:
     self.connection.commit()
 
   def setup(self, database, collection):
-    self.logger.info('Database connection initialized.')
-    self.logger.info('Connected to the database.')
+    self.logger.log('Database connection initialized.')
+    self.logger.log('Connected to the database.')
     
-def initialize(config):
+def initialize(config, logger):
   db = config.get('database', 'dbname')
   table = config.get('database', 'testtable')
   user = config.get('postgres', 'user')
   password = config.get('postgres', 'password')
-  p = Postgres(user, password, db, table, logging)
-  
+  p = Postgres(user, password, db, table, logger)
   p.connect_to_database()
   #p.create_table()
   return p
