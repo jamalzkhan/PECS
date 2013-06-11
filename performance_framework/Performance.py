@@ -14,13 +14,14 @@ def setup_parser(parser):
   parser.add_option("-d", "--database", help="choose the database type")
   parser.add_option("-i", type="int", dest="inserts", help="number of inserts to do in the database")
   parser.add_option("-s", type="int", dest="selects", help="number of select queries to execute")
+  parser.add_option("-c", action="store_true", dest="create_table")
   
   # Parser for the HTTP server options
   parser.add_option("-u", "--url", help="path of the webserver")
   parser.add_option("-p", "--port", help="please give the port of the webserver, default 80")
   parser.add_option("-g", type="int", dest="get_requests", help="number of get requests")
   parser.add_option("-x", type="int", dest="post_requests", help="number of post requests")
-  parser.add_option("-c", type="int", dest="threads", help="number of concurrent connections")
+  parser.add_option("-n", type="int", dest="threads", help="number of concurrent connections")
   return parser
 
 def get_database(database_string, config):
@@ -55,7 +56,7 @@ def main():
   gets = check_int_field(options.get_requests)
   posts = check_int_field(options.post_requests)
   threads = check_threads_field(options.threads)
-  
+  create = options.create_table
   # Configuration, which is derived from a specificc file
   config = ConfigParser.RawConfigParser()
   config.read('config.conf')
@@ -67,6 +68,12 @@ def main():
   
   if options.database != None:
     streamer = TweetStream.get_instance(logger, inserts, selects, database, config)
+    if create and options.database == 'postgres':
+      logger.log("Creating database tables...")
+      database.connect_to_database()
+      database.create_table()
+      database.disconnect()
+      exit()
     logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
     str(selects) + " reads.")
   elif options.url != None:
