@@ -6,7 +6,6 @@ class Postgres:
   
   def __init__(self,user, password, db, table, logger):
     self.logger = logging
-    self.logger.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
     self.setup(db, table)
     self.db = db
     self.table = table

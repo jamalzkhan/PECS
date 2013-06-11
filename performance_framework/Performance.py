@@ -1,4 +1,4 @@
-import TweetStream, MongoDB, Postgres, Logger, ConfigParser, ServerConnection
+import TweetStream, MongoDB, Postgres, Logger, ConfigParser, MultiWeb
 from optparse import OptionParser
 
 class Performance:
@@ -63,12 +63,12 @@ def main():
     logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
     str(selects) + " reads.")
   elif options.url != None:
-    streamer = ServerConnection.initialize(url, port, gets, posts, logger, config)
+    streamer = MultiWeb.initialize(url, port, gets, posts, logger, config, 100)
   else:
     print "Please enter the correct arguments"
   
   # Running the streamer
-  streamer.run(None)
+  streamer.run()
 
 if __name__ == "__main__":
   main()

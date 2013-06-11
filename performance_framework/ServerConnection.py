@@ -1,8 +1,10 @@
-import httplib, datetime, urllib
+import httplib, datetime, urllib, threading
+import Logger, ConfigParser
+from shared import shared
 
-class ServerConnection:
+class ServerConnection(threading.Thread):
   
-  def __init__(self, url, port, gets, puts, logger, config):
+  def __init__(self, url, port, gets, puts, logger, config, file):
     self.url = url
     self.port = port
     self.http_connection = httplib.HTTPConnection(url, port)
@@ -12,6 +14,9 @@ class ServerConnection:
     self.get_url = config.get('http','get')
     self.post_url = config.get('http','post')
     self.post_data = self.get_post_data(config)
+    self.shared = shared
+    self.file = file
+    threading.Thread.__init__(self)
     
   def get_post_data(self, config):
     items = config.items('post')
@@ -39,8 +44,8 @@ class ServerConnection:
      return './logs/'+str(datetime.datetime.now())+'-'+self.url \
       +'-gets-'+str(self.gets)+'-puts-'+str(self.puts)+'.log'
 
-  def run(self, time_limit):
-    self.file = open(self.get_file_name(), 'w')
+  def run(self):
+    #self.file = open(self.get_file_name(), 'w')
     self.connect()
     response_data = []
     gets = 0
@@ -58,24 +63,18 @@ class ServerConnection:
       after =  datetime.datetime.now()
       delta = after - before
       response_data.append(delta.total_seconds())
-    self.logger.log_to_file(self.file, str(response_data))
+    #self.shared += response_data
+    print len(response_data)
+    self.logger.log_to_file(self.file, str(response_data).replace('[', '').replace(']', '')+",")
     self.logger.log("Conducted " + str(gets) + " get requests and " + str(post) + " post requests.")
 
-def initialize(url, port, gets, posts, logger, config):
-  s = ServerConnection(url, port, gets, posts, logger, config)
+def initialize(url, port, gets, posts, logger, config, file):
+  s = ServerConnection(url, port, gets, posts, logger, config, file)
   return s
 
 if __name__ == "__main__":
-  s = initialize('localhost', 1337, 100, 200, logger)
-  response_data = []
-  
-  for i in range(0, s.gets):
-    before = datetime.datetime.now()
-    res = s.get_request("/").read()
-    #print res.status, res.reason
-    after =  datetime.datetime.now()
-    delta = after - before
-    response_data.append(delta.total_seconds())
-  
-  print response_data
+  c = ConfigParser.RawConfigParser()
+  c.read('config.conf')
+  s = initialize("localhost", 3000, 10, 0, Logger.initialize("test"), c)
+  s.run()
   s.disconnect()

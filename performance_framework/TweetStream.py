@@ -15,12 +15,13 @@ class TweetStream(threading.Thread):
     self.database = database
     self.response_data = []
     self.logger = logger
+    threading.Thread.__init__(self)
   
   def get_file_name(self):
     return   './logs/'+str(datetime.datetime.now())+'-'+self.database.to_string()\
     +'-read-'+str(self.selects)+'-write-'+str(self.inserts)+'.log'
   
-  def run(self, time_limit):
+  def run(self):
     self.logger.log("Starting to stream tweets from Twitter")
     self.file = open(self.get_file_name(), 'w')
     self.stream  = tweetstream.SampleStream(self.twitter_username, self.twitter_password)
@@ -34,10 +35,11 @@ class TweetStream(threading.Thread):
       #if self.put_tweet_in_database():
       if count < self.inserts:
         writes += 1
-        self.add_to_database(tweet)  
+        print tweet
+        #self.add_to_database(tweet)  
       else:
         reads += 1
-        self.query_database()
+        #self.query_database()
       after =  datetime.datetime.now()
       delta = after - before
       count += 1
@@ -67,4 +69,4 @@ if __name__ == "__main__":
   m = MongoDB.initialize()
   p = Postgres.initialize()
   t = TweetStream(logging, 100, 100 , m)
-  t.run(None)
+  t.run()
