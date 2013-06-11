@@ -35,8 +35,7 @@ class TweetStream(threading.Thread):
       #if self.put_tweet_in_database():
       if count < self.inserts:
         writes += 1
-        print tweet
-        #self.add_to_database(tweet)  
+        self.add_to_database(tweet)  
       else:
         reads += 1
         #self.query_database()

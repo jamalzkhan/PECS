@@ -22,5 +22,5 @@ class MultiWeb:
       s = ServerConnection.initialize(self.url, self.port, self.gets, self.posts, self.logger, self.config, self.file).start()
   
 def initialize(url, port, gets, posts, logger, config, thread_count):
-  m = return MultiWeb(url, port, gets, posts, logger, config, thread_count)
+  return MultiWeb(url, port, gets, posts, logger, config, thread_count)
   

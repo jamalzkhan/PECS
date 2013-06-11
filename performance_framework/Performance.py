@@ -20,6 +20,7 @@ def setup_parser(parser):
   parser.add_option("-p", "--port", help="please give the port of the webserver, default 80")
   parser.add_option("-g", type="int", dest="get_requests", help="number of get requests")
   parser.add_option("-x", type="int", dest="post_requests", help="number of post requests")
+  parser.add_option("-c", type="int", dest="threads", help="number of concurrent connections")
   return parser
 
 def get_database(database_string, config):
@@ -35,6 +36,11 @@ def check_int_field(field):
     return 0
   return field
 
+def check_threads_field(field):
+  if field == None:
+    return 1
+  return field
+
 def main():
   parser = setup_parser(OptionParser())
   (options, args) = parser.parse_args()
@@ -48,6 +54,7 @@ def main():
   port = check_int_field(options.port)
   gets = check_int_field(options.get_requests)
   posts = check_int_field(options.post_requests)
+  threads = check_threads_field(options.threads)
   
   # Configuration, which is derived from a specificc file
   config = ConfigParser.RawConfigParser()
@@ -63,7 +70,7 @@ def main():
     logger.log("Initalized tool, connecting to " + database.to_string() + " and performing " +str(inserts)+" writes and " + \
     str(selects) + " reads.")
   elif options.url != None:
-    streamer = MultiWeb.initialize(url, port, gets, posts, logger, config, 100)
+    streamer = MultiWeb.initialize(url, port, gets, posts, logger, config, threads)
   else:
     print "Please enter the correct arguments"
   
