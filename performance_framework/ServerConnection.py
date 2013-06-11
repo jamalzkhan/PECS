@@ -1,4 +1,4 @@
-import httplib, datetime, urllib, threading
+import httplib, datetime, urllib, threading, json
 import Logger, ConfigParser
 from shared import shared
 
@@ -37,7 +37,7 @@ class ServerConnection(threading.Thread):
     
   def post_request(self, request_url, data):
     headers = {"Content-type":"application/json", "Accept": "text/plain"}
-    self.http_connection.request("POST", '/'+request_url, urllib.urlencode(data), headers)
+    self.http_connection.request("POST", '/'+request_url, data, headers)
     return self.http_connection.getresponse()
   
   def get_file_name(self):
@@ -57,8 +57,11 @@ class ServerConnection(threading.Thread):
         res = self.get_request(self.get_url).read()
       else:
         post += 1
-        params = urllib.urlencode(self.post_data)
-        res = self.post_request(self.post_url, self.post_data).read()
+        post_data = json.dumps(self.post_data)
+        #params = urllib.urlencode(self.post_data)
+        #print post_data
+        #print params
+        res = self.post_request(self.post_url, post_data).read()
       #print res.status, res.reason
       after =  datetime.datetime.now()
       delta = after - before

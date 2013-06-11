@@ -11,10 +11,16 @@ app.get('/', function(req, res){
 });
 
 app.post('/posturl', function(req, res){
+  var data_limit = 10
   var body = "Post request recieved!"
   console.log("post aqcuired")
   
   user = req.param('user',null);
+  console.log(user)
+  data = []
+  for (var i=0; i<data_limit; i++){
+    data[i] = req.param('data'+i,null);
+  }
   /*
    * Do more stuff with the post request params
    */
