@@ -1,7 +1,39 @@
 import tweetstream, threading, ConfigParser, random, time, datetime
+from twython import TwythonStreamer
 import logging
 import MongoDB
 import Postgres
+
+class MyStreamer(TwythonStreamer):
+    
+    def init_variables(self, tweetstream):
+      self.tweetstream = tweetstream
+      self.max_count = tweetstream.inserts + tweetstream.selects
+      self.count = 0
+      self.reads = 0
+      self.writes = 0
+  
+    def on_success(self, data):
+      
+      before = datetime.datetime.now()
+      
+      if self.count < self.tweetstream.inserts:
+        self.writes += 1
+        self.tweetstream.add_to_database(data)
+      else:
+        self.reads += 1
+        self.tweetstream.query_database()
+      after =  datetime.datetime.now()
+      delta = after - before
+      self.tweetstream.response_data.append(delta.total_seconds())
+      
+      self.count += 1
+      
+      if self.count == self.max_count:
+        self.disconnect()
+
+    def on_error(self, status_code, data):
+        print status_code, data
 
 class TweetStream(threading.Thread):
   
@@ -9,12 +41,19 @@ class TweetStream(threading.Thread):
     
     self.twitter_username = config.get('twitter','username')
     self.twitter_password = config.get('twitter','password')
+    
+    self.app_key = config.get('twitter','app_key')
+    self.app_secret = config.get('twitter', 'app_secret')
+    self.oauth_token = config.get('twitter', 'oauth_token')
+    self.oauth_token_secret = config.get('twitter', 'oauth_token_secret')
+    
     self.selects = selects
     self.inserts = inserts
     self.probability_tracker = 0
     self.database = database
     self.response_data = []
     self.logger = logger
+    self.streamer = MyStreamer(self.app_key, self.app_secret, self.oauth_token, self.oauth_token_secret)
     threading.Thread.__init__(self)
   
   def get_file_name(self):
@@ -22,33 +61,14 @@ class TweetStream(threading.Thread):
     +'-read-'+str(self.selects)+'-write-'+str(self.inserts)+'.log'
   
   def run(self):
+    self.streamer.init_variables(self)
     self.logger.log("Starting to stream tweets from Twitter")
-    self.file = open(self.get_file_name(), 'w')
-    self.stream  = tweetstream.SampleStream(self.twitter_username, self.twitter_password)
+    self.streamer.statuses.sample()
     
-    max_queries = self.inserts + self.selects
-    count = 0
-    reads = 0
-    writes = 0
-    for tweet in self.stream:
-      before = datetime.datetime.now()
-      #if self.put_tweet_in_database():
-      if count < self.inserts:
-        writes += 1
-        self.add_to_database(tweet)  
-      else:
-        reads += 1
-        #self.query_database()
-      after =  datetime.datetime.now()
-      delta = after - before
-      count += 1
-      #logger.(str(delta.total_seconds()) + ", ")
-      self.response_data.append(delta.total_seconds())
-      if count == max_queries:
-        break
+    self.file = open(self.get_file_name(), 'w')
     self.logger.log("Database queries complete")
-    self.logger.log("Conducted " +str(reads) + " reads and " + str(writes) +" writes.")
-    self.logger.log_to_file(self.file, str(self.response_data))
+    self.logger.log("Conducted " +str(self.streamer.reads) + " reads and " + str(self.streamer.writes) +" writes.")
+    self.logger.log_to_file(self.file, str(self.response_data).replace('[', '').replace(']', '').replace(' ', '').replace(',','\n'))
     self.logger.log("Average response time: "+str(sum(self.response_data)/len(self.response_data)))
         
   def put_tweet_in_database(self):

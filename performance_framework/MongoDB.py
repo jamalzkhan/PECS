@@ -25,10 +25,10 @@ class MongoDB:
     
   def add_tweets(self, tweet):
     data = tweet
-    self.db["tweets"].insert(data)
+    self.collection.insert(data)
     
   def query_database(self):
-    self.db["tweets"].find()
+    self.collection.find()
     
   def get_logs(self):
     logs = self.collection.find()

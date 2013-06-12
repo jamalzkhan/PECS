@@ -67,7 +67,7 @@ class ServerConnection(threading.Thread):
       delta = after - before
       response_data.append(delta.total_seconds())
     #self.shared += response_data
-    self.logger.log_to_file(self.file, str(response_data).replace('[', '').replace(']', '')+",")
+    self.logger.log_to_file(self.file, str(response_data).replace('[', '').replace(']', '').replace(',','\n').replace(' ', ''))
     self.logger.log("Conducted " + str(gets) + " get requests and " + str(post) + " post requests.")
 
 def initialize(url, port, gets, posts, logger, config, file):
