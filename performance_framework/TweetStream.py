@@ -1,4 +1,4 @@
-import tweetstream, threading, ConfigParser, random, time, datetime
+import threading, ConfigParser, random, time, datetime
 from twython import TwythonStreamer
 import logging
 import MongoDB
@@ -33,7 +33,7 @@ class MyStreamer(TwythonStreamer):
         self.disconnect()
 
     def on_error(self, status_code, data):
-        print status_code, data
+        self.tweetstream.logger.log(status_code, data)
 
 class TweetStream(threading.Thread):
   
