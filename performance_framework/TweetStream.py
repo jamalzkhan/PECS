@@ -12,25 +12,36 @@ class MyStreamer(TwythonStreamer):
       self.count = 0
       self.reads = 0
       self.writes = 0
+      self.before = datetime.datetime.now()
+      self.inter = False
+
+      if self.inter:
+        self.interarrival_file = open(self.get_file_name(), 'w')
+
+    def get_file_name(self):
+      return   './logs/'+str(datetime.datetime.now())+'-interarrival'+'-write-'+str(self.writes)+'.log'
   
     def on_success(self, data):
-      
-      before = datetime.datetime.now()
-      
-      if self.count < self.tweetstream.inserts:
-        self.writes += 1
-        self.tweetstream.add_to_database(data)
+      if self.inter:
+        old_before = self.before
+        self.before = datetime.datetime.now()
+        interarrival_delta = self.before - old_before
+        self.tweetstream.logger.log_to_file(self.interarrival_file,str(interarrival_delta.total_seconds())+"\n")
       else:
-        self.reads += 1
-        self.tweetstream.query_database()
-      after =  datetime.datetime.now()
-      delta = after - before
-      self.tweetstream.response_data.append(delta.total_seconds())
+        if self.count < self.tweetstream.inserts:
+          self.writes += 1
+          self.tweetstream.add_to_database(data)
+        else:
+          self.reads += 1
+          self.tweetstream.query_database()
+        after =  datetime.datetime.now()
+        delta = after - self.before
+        self.tweetstream.response_data.append(delta.total_seconds())
       
-      self.count += 1
+        self.count += 1
       
-      if self.count == self.max_count:
-        self.disconnect()
+        if self.count == self.max_count:
+          self.disconnect()
 
     def on_error(self, status_code, data):
         self.tweetstream.logger.log(status_code, data)

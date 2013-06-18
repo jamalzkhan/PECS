@@ -15,8 +15,6 @@ app.post('/posturl', function(req, res){
   var body = "Post request recieved!"
   console.log("post aqcuired")
   
-  user = req.param('user',null);
-  console.log(user)
   data = []
   for (var i=0; i<data_limit; i++){
     data[i] = req.param('data'+i,null);
