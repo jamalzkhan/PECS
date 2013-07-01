@@ -1,6 +1,6 @@
 # PECS (Peformance Evaluation of Cloud Services)
 
-- Final year MEng Computing project at Imperial College London by Jamal Khan, jzk09@doc.ic.ac.uk
+- Final year MEng Computing project at Imperial College London by Jamal Khan, jzk09@doc.ic.ac.uk.
 
 ## Service time evaluation time installation
 
@@ -79,9 +79,9 @@ This performs 3000 GET requests and 2000 POST requests multiplied by 30 concurre
 
 Also note that the Node.js webserver in the code base has a GET and POST method implemented in the "/" and"/posturl"  path respectively, so you can use this as a starting point.
 
-## Chart data
+## Analysis of the service time tool data
 
-Data used for chart creation in the report is in the analysis/ folder and some helper Matlab files are there as well.
+Data used for chart creation in the report is in the analysis/logs folder and some helper Matlab files in the analysis/ folder. Charts used in the report are in the analysis/figs folder.
 
 ## Cloud computing setup
 
