@@ -1,6 +1,4 @@
 function [ ratio ] = find_cost_ratio_micro_large( param_small, param_large )
-%FIND_COST_RATIO_MICRO_LARGE Summary of this function goes here
-%   Detailed explanation goes here
 
 micro_instance_hour = 0.025;
 ex_instance_hour = 0.520;
